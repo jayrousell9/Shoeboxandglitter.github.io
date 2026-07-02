@@ -1,85 +1,902 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shoebox & Glitter</title>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'GA_MEASUREMENT_ID');
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
   <style>
+    /* ── Tokens ───────────────────────────────────────────── */
+    :root {
+      /* Base palette */
+      --cream:       #E8E6DF;   /* Swiss Coffee */
+      --white-drift: #ECEEE9;   /* White Drifts — card backgrounds */
+      --green:       #464F56;   /* Narragansett Green — nav, buttons */
+      --green-deep:  #2E3539;   /* Deeper — headings */
+      --lush:        #1A1A1A;   /* Lush — body text, 7.2:1 on cream ✓ */
+      --newburg:     #344E5C;   /* Newburg Green — step numbers, strong accent */
+      --pink:        #B5437A;   /* Hot Lips — Shoebox & Glitter ONLY */
+      --tan:         #D4CEBF;   /* Manchester Tan — dividers */
+
+      /* Black Coffee 2167-10 — near-black warm brown, 16:1 on cream ✓ */
+      --black-coffee: #1C1714;
+
+      /* Semantic */
+      --heading:     #EDE9E1;
+      --body-text:   #D4CEBF;
+      --label:       #C2D0D6;
+      --bg:          var(--green);
+      --bg-card:     #3A4248;
+      --bg-hover:    #3F474E;
+      --divider:     #5A6370;
+      --nav-text:    #EDE9E1;
+      --nav-muted:   #C2D0D6;
+
+      --font:   'Open Sans', system-ui, sans-serif;
+      --max-w:  720px;
+      --side:   clamp(1.25rem, 5vw, 2.5rem);
+    }
+
+    /* ── Reset ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      background: #f7f7f7;
-      color: #222;
+      background: var(--green);
+      color: var(--body-text);
+      font-family: var(--font);
+      font-size: 1rem;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
     }
-    header {
-      background: #111;
-      color: white;
-      padding: 60px 20px;
-      text-align: center;
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Pages ────────────────────────────────────────────── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Nav ──────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--green-deep);
+      padding: 0 var(--side);
     }
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
+    .nav-inner {
+      max-width: calc(var(--max-w) + 4rem);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 1rem;
     }
-    header p {
-      opacity: 0.8;
-      margin-top: 10px;
+    .nav-logo {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--nav-text);
+      flex-shrink: 0;
+      cursor: pointer;
+      letter-spacing: -0.01em;
     }
+    /* Pink only on the & in the logo */
+    .nav-logo .amp { color: var(--pink); }
+
+    .nav-links {
+      display: flex;
+      gap: clamp(0.5rem, 3vw, 1.75rem);
+      list-style: none;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links button {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-family: var(--font);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--nav-muted);     /* 4.6:1 on green ✓ */
+      cursor: pointer;
+      padding: 0.25rem 0;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .nav-links button:hover  { color: var(--nav-text); }
+    .nav-links button.active { color: var(--nav-text); border-bottom-color: var(--nav-text); }
+    /* Pink active state only on Shoebox nav item */
+    .nav-links button.active.shoebox-nav { color: var(--pink); border-bottom-color: var(--pink); }
+
+    /* ── Layout ───────────────────────────────────────────── */
     .container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 0 20px;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--side);
     }
-    .post {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
+    .section { padding: 4rem 0; }
+    .section + .section { border-top: 1px solid var(--divider); }
+
+    /* ── Typography ───────────────────────────────────────── */
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.25rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--heading);
     }
-    .post h2 {
-      margin-top: 0;
+    h2 {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--heading);
     }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--heading);
+    }
+    p { color: var(--body-text); }
+
+    .eyebrow {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--label);   /* Newburg Green — 6.5:1 on cream ✓ */
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Glitter shimmer — PINK, Shoebox pages only ───────── */
+    .glitter-pink {
+      background: linear-gradient(90deg, #B5437A 0%, #D4609A 45%, #B5437A 70%, #922E62 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3.5s linear infinite;
+    }
+    /* Standard shimmer — green tones for non-shoebox pages */
+    .glitter-green {
+      background: linear-gradient(90deg, #344E5C 0%, #5C8090 45%, #344E5C 70%, #22363F 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3.5s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .glitter-pink  { animation: none; -webkit-text-fill-color: var(--pink); }
+      .glitter-green { animation: none; -webkit-text-fill-color: var(--newburg); }
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero { padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 4rem); }
+    .hero h1 { margin-bottom: 1.25rem; }
+    .hero p.lead {
+      font-size: 1.05rem;
+      color: var(--body-text);
+      max-width: 520px;
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      background: var(--heading);
+      color: var(--green);
+      font-family: var(--font);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.8rem 1.75rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn:hover { background: var(--body-text); transform: translateY(-1px); }
+
+    /* ── Article cards ────────────────────────────────────── */
+    .articles-grid { display: flex; flex-direction: column; }
+    .article-card {
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--divider);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .article-card:first-child { padding-top: 0; }
+    .article-card:last-child { border-bottom: none; }
+    .article-card:hover { opacity: 0.65; }
+    .article-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+      margin-bottom: 0.4rem;
+    }
+    .article-card h3 { margin-bottom: 0.4rem; }
+    .article-card p { font-size: 0.875rem; }
+    .article-meta {
+      font-size: 0.68rem;
+      color: var(--label);
+      margin-top: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── How to Win — step list ───────────────────────────── */
+    .steps { display: flex; flex-direction: column; }
+    .step-row {
+      display: grid;
+      grid-template-columns: 3.5rem 1fr auto;
+      gap: 1.25rem;
+      align-items: center;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--divider);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .step-row:first-child { padding-top: 0; }
+    .step-row:last-child { border-bottom: none; }
+    .step-row:hover { opacity: 0.65; }
+    .step-row-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--heading);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .step-row-body h3 { margin-bottom: 0.3rem; }
+    .step-row-body p  { font-size: 0.875rem; }
+    .step-row-arrow {
+      font-size: 1.25rem;
+      color: var(--heading);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .step-row:hover .step-row-arrow { transform: translateX(4px); }
+
+    /* ── Step detail page ─────────────────────────────────── */
+    .step-header {
+      padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(1.5rem, 4vw, 3rem);
+      border-bottom: 1px solid var(--divider);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .step-badge-num {
+      background: var(--heading);
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.65rem;
+    }
+    .step-badge-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+    .step-header h1 { margin-bottom: 1rem; }
+    .step-header p.lead {
+      font-size: 1.05rem;
+      color: var(--body-text);
+      font-weight: 300;
+      line-height: 1.75;
+      max-width: 540px;
+    }
+    .step-body { padding: 3rem 0; }
+    .step-body p {
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+    .step-body p:last-child { margin-bottom: 0; }
+
+    /* ── Step nav ─────────────────────────────────────────── */
+    .step-nav {
+      border-top: 1px solid var(--divider);
+      padding: 2.5rem 0;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    .step-nav-prev  { text-align: left; }
+    .step-nav-center { text-align: center; }
+    .step-nav-next  { text-align: right; }
+    .step-nav-btn {
+      background: none;
+      border: none;
+      font-family: var(--font);
+      cursor: pointer;
+      padding: 0.5rem 0;
+      transition: opacity 0.2s;
+    }
+    .step-nav-btn:hover { opacity: 0.65; }
+    .step-nav-btn .nav-dir {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--label);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    .step-nav-btn .nav-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--heading);
+    }
+    .step-nav-btn.prev .nav-title::before { content: '← '; }
+    .step-nav-btn.next .nav-title::after  { content: ' →'; }
+
+    .step-dots {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: center;
+    }
+    .step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--divider);
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      padding: 0;
+    }
+    .step-dot.active  { background: var(--heading); transform: scale(1.3); }
+    .step-dot:hover:not(.active) { background: var(--body-text); }
+
+    /* ── Shoebox tools ────────────────────────────────────── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--divider);
+      border: 1px solid var(--divider);
+      margin-top: 2rem;
+    }
+    .tool-card {
+      background: var(--bg-card);
+      padding: 1.75rem;
+      transition: background 0.2s;
+    }
+    .tool-card:hover { background: var(--bg-hover); }
+    .tool-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+    .tool-card h3 { font-size: 1rem; margin-bottom: 0.35rem; }
+    .tool-card p  { font-size: 0.85rem; margin-bottom: 1rem; }
+    .tool-link {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--pink);      /* Pink accent on this page only ✓ */
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── Corner cards ─────────────────────────────────────── */
+    .corner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--divider);
+      border: 1px solid var(--divider);
+      margin-top: 2.5rem;
+    }
+    .corner-card { background: var(--bg-card); padding: 1.75rem; }
+    .corner-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .corner-card p  { font-size: 0.85rem; }
+
+    /* ── Footer ───────────────────────────────────────────── */
     footer {
+      background: var(--green-deep);
+      padding: 2.5rem var(--side);
       text-align: center;
-      padding: 40px;
-      font-size: 0.9rem;
-      color: #666;
+      margin-top: 4rem;
     }
+    footer p {
+      font-size: 0.75rem;
+      color: var(--nav-muted);   /* 4.6:1 on green ✓ */
+      letter-spacing: 0.04em;
+    }
+    /* Pink only on the & in footer */
+    footer .amp { color: var(--pink); }
   </style>
 </head>
 <body>
 
-<nav>
-  <a href="/index.html">Start here</a>
-  <a href="/how-to-win.html">How to win</a>
-  <a href="/shoebox-and-glitter.html">Shoebox & glitter</a>
-  <a href="/in-your-corner.html">In your corner</a>
-</nav>
-  
-<header>
-  <h1>Innovation Briefs</h1>
-  <p>Short insights on how innovation is shaping business, technology, and everyday life.</p>
-</header>
+  <!-- ── Navigation ─────────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-logo" onclick="showPage('home')">
+        Shoebox <span class="amp">&</span> Glitter
+      </div>
+      <ul class="nav-links">
+        <li><button onclick="showPage('home')"    id="nav-home"    class="active">Start here</button></li>
+        <li><button onclick="showPage('how')"     id="nav-how">How to win</button></li>
+        <li><button onclick="showPage('shoebox')" id="nav-shoebox" class="shoebox-nav">Shoebox &amp; glitter</button></li>
+        <li><button onclick="showPage('corner')"  id="nav-corner">In your corner</button></li>
+      </ul>
+    </div>
+  </nav>
 
-<div class="container">
 
-  <div class="post">
-    <h2>Welcome to the site</h2>
-    <p>This is a collection of short 350–500 word insights on innovation. The goal is simple: clarity over complexity.</p>
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PAGE: Home                                            -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="page active" id="page-home">
+    <div class="container">
+      <div class="hero section">
+        <p class="eyebrow">Innovation · Leadership · Growth</p>
+        <h1>Big ideas.<br>Small <span class="glitter-green">boxes</span>.<br>Real results.</h1>
+        <p class="lead">Practical, evidence-based ideas for teams that want to innovate faster — without the complexity, jargon, or waste.</p>
+        <button class="btn" onclick="showPage('how')">Explore the framework →</button>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section">
+        <p class="eyebrow">Recent articles</p>
+        <h2>Ideas worth keeping</h2>
+        <p style="margin-top:0.5rem; margin-bottom:2rem; font-size:0.875rem; font-weight:300;">Short. Useful. No filler.</p>
+        <div class="articles-grid">
+          <div class="article-card">
+            <div class="article-tag">Innovate with intent</div>
+            <h3>Why your best ideas never leave the meeting room</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <div class="article-meta">4 min read · Innovation</div>
+          </div>
+          <div class="article-card">
+            <div class="article-tag">Find your purpose</div>
+            <h3>The one question that changes everything</h3>
+            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <div class="article-meta">3 min read · Purpose</div>
+          </div>
+          <div class="article-card">
+            <div class="article-tag">Flex your leadership</div>
+            <h3>Leading teams that don't look to you for answers</h3>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+            <div class="article-meta">5 min read · Leadership</div>
+          </div>
+          <div class="article-card">
+            <div class="article-tag">Commit every day</div>
+            <h3>The smallest habit that compounds the fastest</h3>
+            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <div class="article-meta">3 min read · Growth</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="post">
-    <h2>First idea coming soon</h2>
-    <p>Your first article will appear here. Focus: one idea, one insight, one takeaway.</p>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PAGE: How to Win                                      -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-how">
+    <div class="container">
+      <div class="hero section">
+        <p class="eyebrow">The framework</p>
+        <h1>How to <span class="glitter-green">win</span></h1>
+        <p class="lead">A five-step system for people who want to think more clearly, lead more effectively, and build something that lasts.</p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section" style="padding-top:0;">
+        <div class="steps">
+          <div class="step-row" onclick="showStep(1)">
+            <div class="step-row-num">1</div>
+            <div class="step-row-body">
+              <h3>Innovate with intent</h3>
+              <p>Stop throwing ideas at the wall. Start with purpose.</p>
+            </div>
+            <div class="step-row-arrow">→</div>
+          </div>
+          <div class="step-row" onclick="showStep(2)">
+            <div class="step-row-num">2</div>
+            <div class="step-row-body">
+              <h3>Find your purpose</h3>
+              <p>The clearer your why, the faster everything else moves.</p>
+            </div>
+            <div class="step-row-arrow">→</div>
+          </div>
+          <div class="step-row" onclick="showStep(3)">
+            <div class="step-row-num">3</div>
+            <div class="step-row-body">
+              <h3>Flex your leadership</h3>
+              <p>Great leaders adapt. Rigid ones get left behind.</p>
+            </div>
+            <div class="step-row-arrow">→</div>
+          </div>
+          <div class="step-row" onclick="showStep(4)">
+            <div class="step-row-num">4</div>
+            <div class="step-row-body">
+              <h3>Commit every day</h3>
+              <p>Consistency is the only strategy that never fails.</p>
+            </div>
+            <div class="step-row-arrow">→</div>
+          </div>
+          <div class="step-row" onclick="showStep(5)">
+            <div class="step-row-num">5</div>
+            <div class="step-row-body">
+              <h3>Harvest your benefits</h3>
+              <p>Recognise progress. Reinvest your wins.</p>
+            </div>
+            <div class="step-row-arrow">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-</div>
 
-<footer>
-  Built with GitHub Pages
-</footer>
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- STEP PAGES                                            -->
+  <!-- ══════════════════════════════════════════════════════ -->
+
+  <!-- Step 1 -->
+  <div class="page" id="page-step1">
+    <div class="container">
+      <div class="step-header">
+        <div class="step-badge">
+          <span class="step-badge-num">Step 1</span>
+          <span class="step-badge-label">How to win</span>
+        </div>
+        <h1>Innovate with <span class="glitter-green">intent</span></h1>
+        <p class="lead">Stop throwing ideas at the wall. Real innovation starts with a clear problem, a real person, and a willingness to start before you're ready.</p>
+      </div>
+      <div class="step-body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+      </div>
+      <div class="step-nav">
+        <div class="step-nav-prev"></div>
+        <div class="step-nav-center">
+          <div class="step-dots">
+            <button class="step-dot active" onclick="showStep(1)" title="Step 1: Innovate with intent"></button>
+            <button class="step-dot" onclick="showStep(2)" title="Step 2: Find your purpose"></button>
+            <button class="step-dot" onclick="showStep(3)" title="Step 3: Flex your leadership"></button>
+            <button class="step-dot" onclick="showStep(4)" title="Step 4: Commit every day"></button>
+            <button class="step-dot" onclick="showStep(5)" title="Step 5: Harvest your benefits"></button>
+          </div>
+        </div>
+        <div class="step-nav-next">
+          <button class="step-nav-btn next" onclick="showStep(2)">
+            <span class="nav-dir">Next step</span>
+            <span class="nav-title">Find your purpose</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="page" id="page-step2">
+    <div class="container">
+      <div class="step-header">
+        <div class="step-badge">
+          <span class="step-badge-num">Step 2</span>
+          <span class="step-badge-label">How to win</span>
+        </div>
+        <h1>Find your <span class="glitter-green">purpose</span></h1>
+        <p class="lead">The clearer your why, the faster everything else moves. Purpose isn't a poster on the wall — it's the decision you make when no one is watching.</p>
+      </div>
+      <div class="step-body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.</p>
+        <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+      </div>
+      <div class="step-nav">
+        <div class="step-nav-prev">
+          <button class="step-nav-btn prev" onclick="showStep(1)">
+            <span class="nav-dir">Previous</span>
+            <span class="nav-title">Innovate with intent</span>
+          </button>
+        </div>
+        <div class="step-nav-center">
+          <div class="step-dots">
+            <button class="step-dot" onclick="showStep(1)" title="Step 1"></button>
+            <button class="step-dot active" onclick="showStep(2)" title="Step 2"></button>
+            <button class="step-dot" onclick="showStep(3)" title="Step 3"></button>
+            <button class="step-dot" onclick="showStep(4)" title="Step 4"></button>
+            <button class="step-dot" onclick="showStep(5)" title="Step 5"></button>
+          </div>
+        </div>
+        <div class="step-nav-next">
+          <button class="step-nav-btn next" onclick="showStep(3)">
+            <span class="nav-dir">Next step</span>
+            <span class="nav-title">Flex your leadership</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="page" id="page-step3">
+    <div class="container">
+      <div class="step-header">
+        <div class="step-badge">
+          <span class="step-badge-num">Step 3</span>
+          <span class="step-badge-label">How to win</span>
+        </div>
+        <h1>Flex your <span class="glitter-green">leadership</span></h1>
+        <p class="lead">Great leaders adapt. They read the room, adjust their style, and bring out the best in the people around them — whatever the situation demands.</p>
+      </div>
+      <div class="step-body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit.</p>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis quasi architecto.</p>
+      </div>
+      <div class="step-nav">
+        <div class="step-nav-prev">
+          <button class="step-nav-btn prev" onclick="showStep(2)">
+            <span class="nav-dir">Previous</span>
+            <span class="nav-title">Find your purpose</span>
+          </button>
+        </div>
+        <div class="step-nav-center">
+          <div class="step-dots">
+            <button class="step-dot" onclick="showStep(1)" title="Step 1"></button>
+            <button class="step-dot" onclick="showStep(2)" title="Step 2"></button>
+            <button class="step-dot active" onclick="showStep(3)" title="Step 3"></button>
+            <button class="step-dot" onclick="showStep(4)" title="Step 4"></button>
+            <button class="step-dot" onclick="showStep(5)" title="Step 5"></button>
+          </div>
+        </div>
+        <div class="step-nav-next">
+          <button class="step-nav-btn next" onclick="showStep(4)">
+            <span class="nav-dir">Next step</span>
+            <span class="nav-title">Commit every day</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="page" id="page-step4">
+    <div class="container">
+      <div class="step-header">
+        <div class="step-badge">
+          <span class="step-badge-num">Step 4</span>
+          <span class="step-badge-label">How to win</span>
+        </div>
+        <h1>Commit <span class="glitter-green">every day</span></h1>
+        <p class="lead">Consistency is the only strategy that never fails. Small, deliberate actions — repeated daily — compound into outcomes that look like overnight success.</p>
+      </div>
+      <div class="step-body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa officia deserunt mollit.</p>
+        <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt labore et dolore magnam.</p>
+      </div>
+      <div class="step-nav">
+        <div class="step-nav-prev">
+          <button class="step-nav-btn prev" onclick="showStep(3)">
+            <span class="nav-dir">Previous</span>
+            <span class="nav-title">Flex your leadership</span>
+          </button>
+        </div>
+        <div class="step-nav-center">
+          <div class="step-dots">
+            <button class="step-dot" onclick="showStep(1)" title="Step 1"></button>
+            <button class="step-dot" onclick="showStep(2)" title="Step 2"></button>
+            <button class="step-dot" onclick="showStep(3)" title="Step 3"></button>
+            <button class="step-dot active" onclick="showStep(4)" title="Step 4"></button>
+            <button class="step-dot" onclick="showStep(5)" title="Step 5"></button>
+          </div>
+        </div>
+        <div class="step-nav-next">
+          <button class="step-nav-btn next" onclick="showStep(5)">
+            <span class="nav-dir">Next step</span>
+            <span class="nav-title">Harvest your benefits</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="page" id="page-step5">
+    <div class="container">
+      <div class="step-header">
+        <div class="step-badge">
+          <span class="step-badge-num">Step 5</span>
+          <span class="step-badge-label">How to win</span>
+        </div>
+        <h1>Harvest your <span class="glitter-green">benefits</span></h1>
+        <p class="lead">Recognise progress. Reinvest your wins. The final step isn't the end — it's where you take stock, celebrate what worked, and build the foundation for what's next.</p>
+      </div>
+      <div class="step-body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit.</p>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis quasi architecto.</p>
+      </div>
+      <div class="step-nav">
+        <div class="step-nav-prev">
+          <button class="step-nav-btn prev" onclick="showStep(4)">
+            <span class="nav-dir">Previous</span>
+            <span class="nav-title">Commit every day</span>
+          </button>
+        </div>
+        <div class="step-nav-center">
+          <div class="step-dots">
+            <button class="step-dot" onclick="showStep(1)" title="Step 1"></button>
+            <button class="step-dot" onclick="showStep(2)" title="Step 2"></button>
+            <button class="step-dot" onclick="showStep(3)" title="Step 3"></button>
+            <button class="step-dot" onclick="showStep(4)" title="Step 4"></button>
+            <button class="step-dot active" onclick="showStep(5)" title="Step 5"></button>
+          </div>
+        </div>
+        <div class="step-nav-next">
+          <button class="step-nav-btn next" onclick="showPage('how')">
+            <span class="nav-dir">Back to</span>
+            <span class="nav-title">How to win</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PAGE: Shoebox & Glitter — PINK lives here            -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-shoebox">
+    <div class="container">
+      <div class="hero section">
+        <p class="eyebrow" style="color:var(--pink);">Free resources</p>
+        <h1>Shoebox <span class="glitter-pink">&</span> Glitter</h1>
+        <p class="lead">Templates, worksheets, checklists and frameworks. Everything you need to turn ideas into action — yours to use, free.</p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section" style="padding-top:0;">
+        <div class="tools-grid">
+          <div class="tool-card">
+            <div class="tool-icon">📋</div>
+            <h3>Innovation sprint template</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor.</p>
+            <div class="tool-link">Download →</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">🎯</div>
+            <h3>Purpose finder worksheet</h3>
+            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.</p>
+            <div class="tool-link">Download →</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">🧭</div>
+            <h3>Leadership style checker</h3>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>
+            <div class="tool-link">Download →</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">📅</div>
+            <h3>Daily commit tracker</h3>
+            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.</p>
+            <div class="tool-link">Download →</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">⚡</div>
+            <h3>ROI of innovation calculator</h3>
+            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.</p>
+            <div class="tool-link">Use tool →</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">✅</div>
+            <h3>Innovation readiness checklist</h3>
+            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
+            <div class="tool-link">Download →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PAGE: In Your Corner                                  -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="page" id="page-corner">
+    <div class="container">
+      <div class="hero section">
+        <p class="eyebrow">The personal side</p>
+        <h1>In your <span class="glitter-green">corner</span></h1>
+        <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. This is where the personal side of the site lives — who's behind it, what drives it, and how to get in touch.</p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="section" style="padding-top:0;">
+        <div class="corner-grid">
+          <div class="corner-card">
+            <h3>About</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim.</p>
+          </div>
+          <div class="corner-card">
+            <h3>The philosophy</h3>
+            <p>Fast, scrappy, start small, test with real people. Innovation doesn't need a budget — it needs a shoebox and a little glitter.</p>
+          </div>
+          <div class="corner-card">
+            <h3>Work with me</h3>
+            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+          </div>
+          <div class="corner-card">
+            <h3>Get in touch</h3>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer>
+    <p>© 2026 Shoebox <span class="amp">&</span> Glitter · Built for people who make things happen</p>
+  </footer>
+
+
+  <!-- ── Scripts ────────────────────────────────────────── -->
+  <script>
+    const allPages = ['home','how','step1','step2','step3','step4','step5','shoebox','corner'];
+    const topNavPages = ['home','how','shoebox','corner'];
+
+    function showPage(name) {
+      allPages.forEach(p => {
+        document.getElementById('page-' + p).classList.remove('active');
+      });
+      topNavPages.forEach(p => {
+        const btn = document.getElementById('nav-' + p);
+        if (btn) btn.classList.remove('active');
+      });
+
+      document.getElementById('page-' + name).classList.add('active');
+
+      const navKey = name.startsWith('step') ? 'how' : name;
+      const btn = document.getElementById('nav-' + navKey);
+      if (btn) btn.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_view', {
+          page_title: name,
+          page_location: window.location.href + '#' + name
+        });
+      }
+    }
+
+    function showStep(num) { showPage('step' + num); }
+  </script>
 
 </body>
 </html>
